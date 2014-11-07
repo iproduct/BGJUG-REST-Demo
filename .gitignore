@@ -1,4 +1,4 @@
-/bin/
+/build/
 *.~ml
 /IPT_JAX-RS_2.0_Demos/HelloREST/nbproject/private/
 /IPT_JAX-RS_2.0_Demos/RestfulHello/nbproject/private/
