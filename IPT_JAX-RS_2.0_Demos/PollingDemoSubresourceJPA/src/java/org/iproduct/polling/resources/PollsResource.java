@@ -33,6 +33,7 @@ import org.iproduct.polling.controller.AlternativeController;
 
 import org.iproduct.polling.entity.Poll;
 import org.iproduct.polling.controller.PollController;
+import org.iproduct.polling.controller.VoteController;
 import org.iproduct.polling.jpacontroller.exceptions.IllegalOrphanException;
 import org.iproduct.polling.jpacontroller.exceptions.NonexistentEntityException;
 import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
@@ -53,11 +54,11 @@ public class PollsResource {
 
     @Inject 
     private PollController pollController;
-    
     @Inject 
     private AlternativeController alternativeController;
-    
-    
+    @Inject 
+    private VoteController voteController;
+   
     // injected UserTransaction
 //    @Resource
 //    private UserTransaction utx;
@@ -138,11 +139,9 @@ public class PollsResource {
             throw new WebApplicationException("Poll with Id = " 
                     + id + " does not exist", NOT_FOUND);
         }
-        return new AlternativesResource(poll.getId(), pollController, alternativeController, uriInfo);
+        return new AlternativesResource(poll.getId(), 
+                pollController, alternativeController, voteController, uriInfo);
     }
-
-    
-    
     
     /**
      * Create new resource with identifier automatically assigned by polls

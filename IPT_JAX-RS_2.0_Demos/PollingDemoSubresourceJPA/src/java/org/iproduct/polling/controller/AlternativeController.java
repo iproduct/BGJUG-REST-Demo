@@ -77,8 +77,8 @@ public class AlternativeController implements Serializable {
             throw new NonexistentEntityException("Poll with Id = "
                     + pollId + " does not exist");
         }
-
         alternative.setPoll(poll);
+        
         List<Vote> attachedVotes = new ArrayList<Vote>();
         for (Vote votesVoteToAttach : alternative.getVotes()) {
             votesVoteToAttach = em.getReference(votesVoteToAttach.getClass(), votesVoteToAttach.getId());
@@ -109,6 +109,7 @@ public class AlternativeController implements Serializable {
                     + pollId + " does not exist");
         }
         alternative.setPoll(poll);
+        
         Alternative persistentAlternative = em.find(Alternative.class, alternative.getId());
         Poll pollOld = persistentAlternative.getPoll();
         Poll pollNew = alternative.getPoll();

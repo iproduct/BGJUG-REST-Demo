@@ -25,11 +25,6 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.FIELD)
 public class Vote implements Serializable {
 
-    @Column(name = "vote_time", unique = false, updatable = true, insertable = true, nullable = false, length = 255, scale = 0, precision = 0)
-    @Temporal(TemporalType.TIMESTAMP)
-    @Basic
-    private Date voteTime;
-
     @TableGenerator(name = "vote_gen",
             table = "id_gen",
             pkColumnName = "GEN_KEY",
@@ -47,8 +42,14 @@ public class Vote implements Serializable {
     @NotNull
     @Size(min = 1, max = 255)
     @Basic(optional = false)
-    @Column(unique = false, updatable = false, insertable = false, nullable = false, length = 255)
+    @Column(unique = false, updatable = true, insertable = true, nullable = false, length = 255)
     private String email;
+    
+    @Column(name = "vote_time", unique = false, updatable = true, insertable = true, 
+            nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Basic
+    private Date voteTime;
 
     @XmlTransient
     @NotNull
@@ -116,7 +117,9 @@ public class Vote implements Serializable {
     @Override
     public String toString() {
         return "Vote{" + "voteTime=" + voteTime + ", id=" + id + ", email=" 
-                + email + ", alternative=" + alternative + '}';
+                + email 
+                + (alternative != null ? ", alternativeId=" + alternative.getId() : "")
+                + '}';
     }
 
 }

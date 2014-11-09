@@ -32,25 +32,28 @@ import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import javax.ws.rs.core.UriInfo;
 import org.iproduct.polling.controller.AlternativeController;
 import org.iproduct.polling.controller.PollController;
+import org.iproduct.polling.controller.VoteController;
 
-import org.iproduct.polling.entity.Alternative;
+import org.iproduct.polling.entity.Vote;
 import org.iproduct.polling.jpacontroller.exceptions.IllegalOrphanException;
 import org.iproduct.polling.jpacontroller.exceptions.NonexistentEntityException;
 import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
 
 /**
- * Resource class for {@link org.iproduct.polling.model.Alternative Alternative} resources
+ * Resource class for {@link org.iproduct.polling.model.Vote Vote} resources
  *
  * @author Trayan Iliev
  * @author IPT [http://iproduct.org]
  *
  */
-@Path("/")
+
 public class VotesResource {
     private Long pollId;
+    private Long alternativeId;
     private UriInfo uriInfo;
     private PollController pollController;
     private AlternativeController altrnativeController;
+    private VoteController voteController;
 
     /**
      * Public no argument constructor 
@@ -63,26 +66,28 @@ public class VotesResource {
      * @param pollController the parent {@link org.iproduct.polling.controller.PollController}
      * @param uriInfo the UriInfo instance from parent resource
      */
-    VotesResource(Long pollId, PollController pollController, 
-            AlternativeController alternativeController, UriInfo uriInfo) {
+    VotesResource(Long pollId, Long alternativeId, PollController pollController, 
+            AlternativeController alternativeController, 
+            VoteController voteController,
+            UriInfo uriInfo) {
         this.pollId = pollId;
+        this.alternativeId = alternativeId;
         this.pollController = pollController;
         this.altrnativeController = alternativeController;
-        this.uriInfo = uriInfo;
-        
-//        altrnativeController = new AlternativeController(pollController);
+        this.voteController = voteController;
+        this.uriInfo = uriInfo;       
     }
      
     /**
      * Get all available polls as a collection
      *
-     * @return Collection of Alternative JAXB XML/JSON representations
+     * @return Collection of Vote JAXB XML/JSON representations
      */
     @GET
     @Produces({APPLICATION_XML, APPLICATION_JSON})
-    public Collection<Alternative> getAllAlternatives() {
+    public Collection<Vote> getAllVotes() {
         System.out.println(">>>>>>>>>>>>>>>>>>> poll = " + pollId);
-        return altrnativeController.findAlternativeEntitiesByPollId(pollId);
+        return voteController.findVoteEntitiesByPollAltIds(pollId, alternativeId);
     }
 
     /**
@@ -91,15 +96,15 @@ public class VotesResource {
      *
      * @param firstResult the sequential number of the first poll to be returned
      * @param maxResults the maximal number of polls to be returned
-     * @return Collection of Alternative JAXB XML/JSON representations
+     * @return Collection of Vote JAXB XML/JSON representations
      */
     @GET
     @Path("/range")
     @Produces({APPLICATION_XML, APPLICATION_JSON})
-    public Collection<Alternative> getAlternativesRange(
+    public Collection<Vote> getVotesRange(
         @QueryParam("first") int firstResult, @QueryParam("max") int maxResults) {
-        return altrnativeController
-            .findAlternativeEntitiesByPollId(pollId, maxResults, firstResult);
+        return voteController
+            .findVoteEntitiesByPollAltIds(pollId, alternativeId, maxResults, firstResult);
     }
 
     /**
@@ -110,8 +115,8 @@ public class VotesResource {
     @GET
     @Path("/count")
     @Produces(TEXT_PLAIN)
-    public String getAlternativesCount() {
-        return Integer.toString(altrnativeController.getAlternativeCount());
+    public String getVotesCount() {
+        return Integer.toString(voteController.getVoteCount());
     }
 
     /**
@@ -119,15 +124,15 @@ public class VotesResource {
      * NOT_FOUND if the resource does not exist.
      *
      * @param id the poll identifier
-     * @return Alternative JAXB XML/JSON representation
+     * @return Vote JAXB XML/JSON representation
      */
     @GET
     @Path("/{id}")
     @Produces({APPLICATION_XML, APPLICATION_JSON})
-    public Alternative getAlternativeById(@PathParam("id") Long id) {
-        Alternative poll = altrnativeController.findAlternative(id);
+    public Vote getVoteById(@PathParam("id") Long id) {
+        Vote poll = voteController.findVote(id);
         if (poll == null) {
-            throw new WebApplicationException("Alternative with Id = " 
+            throw new WebApplicationException("Vote with Id = " 
                     + id + " does not exist", NOT_FOUND);
         }
 //			throw new NotFoundException("Entity with resourceId = " + id + " does not exist");
@@ -142,32 +147,32 @@ public class VotesResource {
      * and entity body containing representation of newly created resource with
      * auto assigned identifier
      * <p>
-     * The method is not idempotent (see {@link #updateAlternative(Long, Alternative)} for a
+     * The method is not idempotent (see {@link #updateVote(Long, Vote)} for a
      * discussion)</p>
      *
-     * @param alt the new alternative to be added
-     * @return HHTP response with entity body containing Alternative JAXB XML/JSON
+     * @param vote the new alternative to be added
+     * @return HHTP response with entity body containing Vote JAXB XML/JSON
      * representation
      */
     @POST
     @Consumes({APPLICATION_XML, APPLICATION_JSON})
-    public Response addAlternative(Alternative alt) {
+    public Response addVote(Vote vote) {
         try {
-            altrnativeController.create(pollId, alt);
+            voteController.create(alternativeId, vote);
         } catch (EJBException e) {
             handleEJBException(e);
         } catch (NonexistentEntityException ex) {
             throw new WebApplicationException(ex.getMessage(), NOT_FOUND);
         } catch (Exception e){
             Logger.getLogger(VotesResource.class.getName())
-                .log(Level.SEVERE, "Alternative Resource throws exception:", e);
+                .log(Level.SEVERE, "Vote Resource throws exception:", e);
             throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
         }
         Response response = Response.created(uriInfo.getAbsolutePathBuilder()
                 .path(Long.toString(pollId))
                 .path(VotesResource.class)
-                .path(Long.toString(alt.getId())).build() )
-            .entity(alt)
+                .path(Long.toString(vote.getId())).build() )
+            .entity(vote)
             .build();
         return response;
     }
@@ -207,11 +212,11 @@ public class VotesResource {
     @PUT
     @Path("/{id}")
     @Consumes({APPLICATION_XML, APPLICATION_JSON})
-    public Response updateAlternative(@PathParam("id") Long id, Alternative alt) {
+    public Response updateVote(@PathParam("id") Long id, Vote alt) {
         Response response = Response.noContent().build();//More appropriate than 200OK
         if (id.equals(alt.getId())) {
             try {
-                altrnativeController.edit(pollId, alt); //TODO Etag comaprison
+                voteController.edit(alternativeId, alt); //TODO Etag comaprison
             } catch (EJBException e) {
                     handleEJBException(e);
             } catch (ConcurrentModificationException e) {
@@ -222,7 +227,7 @@ public class VotesResource {
                 throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
             } catch (Exception e){
                 Logger.getLogger(VotesResource.class.getName())
-                    .log(Level.SEVERE, "Alternative Resource throws exception:", e);
+                    .log(Level.SEVERE, "Vote Resource throws exception:", e);
                 throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
             }
         } else {
@@ -249,7 +254,7 @@ public class VotesResource {
      * <a href"http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html">RFC 2616
      * Section 9</a> for more information)</p>
      * <p>
-     * The method is not idempotent (see {@link #updateAlternative(Long, Alternative)} for a
+     * The method is not idempotent (see {@link #updateVote(Long, Vote)} for a
      * discussion)</p>
      *
      * @param id the poll identifier
@@ -257,11 +262,11 @@ public class VotesResource {
      */
     @DELETE
     @Path("/{id}")
-    public Alternative deleteAlternative(@PathParam("id") Long id) {
-        Alternative deletedItem = null;
+    public Vote deleteVote(@PathParam("id") Long id) {
+        Vote deletedItem = null;
         try {
-            deletedItem = altrnativeController.findAlternative(id);
-            altrnativeController.destroy(id);
+            deletedItem = voteController.findVote(id);
+            voteController.destroy(id);
         } catch (EJBException e) {
             handleEJBException(e);
         } catch (NonexistentEntityException e) {
@@ -270,7 +275,7 @@ public class VotesResource {
             throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
         } catch (Exception e){
             Logger.getLogger(VotesResource.class.getName())
-                .log(Level.SEVERE, "Alternative Resource throws exception:", e);
+                .log(Level.SEVERE, "Vote Resource throws exception:", e);
             throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
         }
         return(deletedItem);
@@ -286,7 +291,7 @@ public class VotesResource {
         
         if(!(ex instanceof ConstraintViolationException)){
             Logger.getLogger(VotesResource.class.getName())
-                    .log(Level.SEVERE, "Alternative Resource throws exception:", e);
+                    .log(Level.SEVERE, "Vote Resource throws exception:", e);
             throw new WebApplicationException(ex.getMessage(), BAD_REQUEST);
         }
         ConstraintViolationException cve = (ConstraintViolationException) ex;
