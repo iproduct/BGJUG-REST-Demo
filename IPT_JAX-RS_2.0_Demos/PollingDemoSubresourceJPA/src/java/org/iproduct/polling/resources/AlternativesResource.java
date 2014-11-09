@@ -146,7 +146,7 @@ public class AlternativesResource {
      * @param id the poll identifier
      * @return Poll JAXB XML/JSON representation
      */
-    @Path("{id}/votes/")
+    @Path("{id}/votes")
     public VotesResource getPollAlternativesByPollId(@PathParam("id") Long altId) {
         Alternative alternative = alternativeController.findAlternative(altId);
         if (alternative == null) {

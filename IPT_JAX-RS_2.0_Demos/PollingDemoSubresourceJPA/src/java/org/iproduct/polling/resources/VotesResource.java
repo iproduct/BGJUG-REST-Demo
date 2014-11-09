@@ -46,7 +46,7 @@ import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
  * @author IPT [http://iproduct.org]
  *
  */
-
+@Path("/votes")
 public class VotesResource {
     private Long pollId;
     private Long alternativeId;
@@ -265,7 +265,9 @@ public class VotesResource {
     public Vote deleteVote(@PathParam("id") Long id) {
         Vote deletedItem = null;
         try {
+            System.out.println("Try to delete vote with id:" + id);
             deletedItem = voteController.findVote(id);
+            System.out.println("Vote found:" + deletedItem);
             voteController.destroy(id);
         } catch (EJBException e) {
             handleEJBException(e);

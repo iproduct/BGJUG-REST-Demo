@@ -34,7 +34,6 @@ import org.iproduct.polling.entity.Alternative;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
-import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.ConstraintViolation;
