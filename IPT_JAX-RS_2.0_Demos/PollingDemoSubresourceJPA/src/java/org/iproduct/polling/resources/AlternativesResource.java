@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import javax.ws.rs.Consumes;
@@ -29,6 +32,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import javax.ws.rs.core.UriInfo;
 import org.iproduct.polling.controller.AlternativeController;
+import org.iproduct.polling.controller.PollController;
 
 import org.iproduct.polling.entity.Alternative;
 import org.iproduct.polling.entity.Poll;
@@ -43,27 +47,23 @@ import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
  * @author IPT [http://iproduct.org]
  *
  */
-@Path("/alternatives")
+
+@Stateless
 public class AlternativesResource {
+    @PathParam("id")
     private Long pollId;
-    private Poll poll;
+    
+    @Context
     private UriInfo uriInfo;
 
-    @Inject 
+    @Inject
     private AlternativeController altrnativeController;
 
     /**
-     * Public constructor with parent Poll resource identifier as argument
-     * @param pollId the parent Poll resource identifier
-     * @param parent the parent Poll entity
-     * @param uriInfo the UriInfo instance from parent resource
+     * Public no argument constructor 
      */
-    public AlternativesResource(Long pollId, Poll parent, UriInfo uriInfo){
-        this.pollId = pollId;
-        this.poll = parent;
-        this.uriInfo = uriInfo;
-    }           
- 
+    public AlternativesResource() {}
+     
     /**
      * Get all available polls as a collection
      *
@@ -72,6 +72,7 @@ public class AlternativesResource {
     @GET
     @Produces({APPLICATION_XML, APPLICATION_JSON})
     public Collection<Alternative> getAllAlternatives() {
+        System.out.println(">>>>>>>>>>>>>>>>>>> polId = " + pollId);
         return altrnativeController.findAlternativeEntitiesByPollId(pollId);
     }
 
@@ -88,7 +89,8 @@ public class AlternativesResource {
     @Produces({APPLICATION_XML, APPLICATION_JSON})
     public Collection<Alternative> getAlternativesRange(
         @QueryParam("first") int firstResult, @QueryParam("max") int maxResults) {
-        return altrnativeController.findAlternativeEntitiesByPollId(pollId, maxResults, firstResult);
+        return altrnativeController
+            .findAlternativeEntitiesByPollId(pollId, maxResults, firstResult);
     }
 
     /**
@@ -143,13 +145,19 @@ public class AlternativesResource {
     public Response addAlternative(Alternative alt) {
         try {
             altrnativeController.create(pollId, alt);
+        } catch (NonexistentEntityException ex) {
+            throw new WebApplicationException(ex.getMessage(), NOT_FOUND);
         } catch (Exception ex) {
             Logger.getLogger(AlternativesResource.class.getName()).log(Level.SEVERE, null, ex);
-            throw new WebApplicationException(ex, Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(ex, BAD_REQUEST);
         }
-        Response response = Response.created(uriInfo.getAbsolutePath().resolve("/" + poll.getId()))
-                .entity(poll)
-                .build();
+        Response response = Response.created(
+            uriInfo.getAbsolutePathBuilder()
+                .path(Long.toString(pollId))
+                .path(AlternativesResource.class)
+                .path(Long.toString(alt.getId())).build() )
+            .entity(alt)
+            .build();
         return response;
     }
 

@@ -28,16 +28,15 @@ package org.iproduct.polling.controller;
 
 import java.io.Serializable;
 import javax.persistence.Query;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.iproduct.polling.entity.Alternative;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.UserTransaction;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import org.iproduct.polling.entity.Poll;

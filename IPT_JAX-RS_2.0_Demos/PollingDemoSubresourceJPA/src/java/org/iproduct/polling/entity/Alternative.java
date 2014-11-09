@@ -17,6 +17,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlTransient;
 
 @Entity
 public class Alternative implements Serializable {
@@ -46,6 +47,7 @@ public class Alternative implements Serializable {
     @NotNull
     private int position;
 
+    @XmlTransient
     @ManyToOne(optional = false, targetEntity = Poll.class)
     @NotNull
     private Poll poll;

@@ -222,12 +222,23 @@ public class PollsResourceTest {
      */
     @Test
     public void testAddPollXML() {
-            Poll pollResponse = target.request(APPLICATION_XML)
-                            .post(Entity.entity(SAMPLE_POLLS[0], APPLICATION_XML), Poll.class);
-            assertNotNull("The POST response should not return null result", pollResponse);
-            forCleanup(pollResponse);
-            assertEquals("Poll title is different then posted", SAMPLE_POLLS[0].getTitle(), pollResponse.getTitle());
-            assertEquals("Poll question is different then posted", SAMPLE_POLLS[0].getQuestion(), pollResponse.getQuestion());
+            Response resp = target.request(APPLICATION_XML)
+                            .post(Entity.entity(SAMPLE_POLLS[0], APPLICATION_XML));
+            assertEquals("Status code not 201 CREATED.", 201, resp.getStatus());
+            Poll actualPoll =  resp.readEntity(Poll.class);
+            assertNotNull("The POST response should not return null result", actualPoll);
+            forCleanup(actualPoll);
+            
+            String actualLocation = resp.getHeaderString("Location");
+            assertNotNull("Header Location missing", actualLocation);
+            assertEquals("Location", target.getUriBuilder()
+                .path(Long.toString(actualPoll.getId())).build().toString(), 
+                actualLocation);
+            
+            assertEquals("Poll title is different then posted", 
+                SAMPLE_POLLS[0].getTitle(), actualPoll.getTitle());
+            assertEquals("Poll question is different then posted", 
+                SAMPLE_POLLS[0].getQuestion(), actualPoll.getQuestion());
     }
 
     /**
@@ -236,12 +247,23 @@ public class PollsResourceTest {
      */
     @Test
     public void testAddPollJSON() {
-            Poll pollResponse = target.request(APPLICATION_JSON)
-                            .post(Entity.entity(SAMPLE_POLLS[0], APPLICATION_JSON), Poll.class);
-            assertNotNull("The POST response should not return null result", pollResponse);
-            forCleanup(pollResponse);
-            assertEquals("Poll title is different then posted", SAMPLE_POLLS[0].getTitle(), pollResponse.getTitle());
-            assertEquals("Poll question is different then posted", SAMPLE_POLLS[0].getQuestion(), pollResponse.getQuestion());
+            Response resp = target.request(APPLICATION_JSON)
+                            .post(Entity.entity(SAMPLE_POLLS[0], APPLICATION_JSON));
+            assertEquals("Status code not 201 CREATED.", 201, resp.getStatus());
+            Poll actualPoll =  resp.readEntity(Poll.class);
+            assertNotNull("The POST response should not return null result", actualPoll);
+            forCleanup(actualPoll);
+            
+            String actualLocation = resp.getHeaderString("Location");
+            assertNotNull("Header Location missing", actualLocation);
+            assertEquals("Location", target.getUriBuilder()
+                .path(Long.toString(actualPoll.getId())).build().toString(), 
+                actualLocation);
+            
+            assertEquals("Poll title is different then posted", 
+                SAMPLE_POLLS[0].getTitle(), actualPoll.getTitle());
+            assertEquals("Poll question is different then posted", 
+                SAMPLE_POLLS[0].getQuestion(), actualPoll.getQuestion());
     }
 
     /**

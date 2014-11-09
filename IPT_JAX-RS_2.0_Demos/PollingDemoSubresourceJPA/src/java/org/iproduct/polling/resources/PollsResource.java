@@ -46,6 +46,9 @@ import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
 @Path("/polls")
 @Stateless
 public class PollsResource {
+    
+//    @javax.enterprise.inject.Produces
+//    Poll poll;
 
     @Inject 
     private PollController pollController;
@@ -123,16 +126,14 @@ public class PollsResource {
      * @param id the poll identifier
      * @return Poll JAXB XML/JSON representation
      */
-    @GET
     @Path("/{id}/alternatives")
-    @Produces({APPLICATION_XML, APPLICATION_JSON})
-    public AlternativesResource getPollAlternativesByPollId(@PathParam("id") Long id) {
+    public Class<AlternativesResource> getPollAlternativesByPollId(@PathParam("id") Long id) {
         Poll poll = pollController.findPoll(id);
         if (poll == null) {
             throw new WebApplicationException("Poll with Id = " 
                     + id + " does not exist", NOT_FOUND);
         }
-        return new AlternativesResource(id, poll, uriInfo);
+        return AlternativesResource.class;
     }
 
     
@@ -162,7 +163,9 @@ public class PollsResource {
             Logger.getLogger(PollsResource.class.getName()).log(Level.SEVERE, null, ex);
             throw new WebApplicationException(ex, Response.Status.BAD_REQUEST);
         }
-        Response response = Response.created(uriInfo.getAbsolutePath().resolve("/" + poll.getId()))
+        Response response = Response.created(
+                uriInfo.getAbsolutePathBuilder()
+                .path(Long.toString(poll.getId())).build() )
                 .entity(poll)
                 .build();
         return response;

@@ -35,9 +35,10 @@ import org.iproduct.polling.entity.Poll;
 import org.iproduct.polling.entity.Vote;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.ParameterExpression;
@@ -57,25 +58,32 @@ import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
 public class AlternativeController implements Serializable {
 
     // injected EntityManager property
-    @PersistenceContext(unitName = "PollingPU")
+    @Inject 
+    PollController pc;
+//    @PersistenceContext(unitName = "PollingPU")
     private EntityManager em;
+    
+    @PostConstruct
+    public void init(){
+        em = pc.getEntityManager();
+    }
 
     public AlternativeController() {
     }
 
-    public void create(Long pollId, Alternative alternative) throws RollbackFailureException, Exception {
+    public void create(Long pollId, Alternative alternative) 
+            throws NonexistentEntityException,RollbackFailureException, Exception {
         if (alternative.getVotes() == null) {
             alternative.setVotes(new ArrayList<Vote>());
         }
-//        EntityManager em = null;
-//        try {
-//            utx.begin();
-//            em = getEntityManager();
-        Poll poll = alternative.getPoll();
-        if (poll != null) {
-            poll = em.getReference(poll.getClass(), poll.getId());
-            alternative.setPoll(poll);
+        
+        Poll poll = em.find(Poll.class, pollId);
+        if (poll == null) {
+            throw new NonexistentEntityException("Poll with Id = " 
+                    + pollId + " does not exist");
         }
+        
+        alternative.setPoll(poll);
         List<Vote> attachedVotes = new ArrayList<Vote>();
         for (Vote votesVoteToAttach : alternative.getVotes()) {
             votesVoteToAttach = em.getReference(votesVoteToAttach.getClass(), votesVoteToAttach.getId());
@@ -83,10 +91,8 @@ public class AlternativeController implements Serializable {
         }
         alternative.setVotes(attachedVotes);
         em.persist(alternative);
-        if (poll != null) {
-            poll.getAlternatives().add(alternative);
-            poll = em.merge(poll);
-        }
+        poll.getAlternatives().add(alternative);
+        poll = em.merge(poll);
         for (Vote votesVote : alternative.getVotes()) {
             Alternative oldAlternativeOfVotesVote = votesVote.getAlternative();
             votesVote.setAlternative(alternative);
@@ -96,26 +102,9 @@ public class AlternativeController implements Serializable {
                 oldAlternativeOfVotesVote = em.merge(oldAlternativeOfVotesVote);
             }
         }
-//            utx.commit();
-//        } catch (Exception ex) {
-//            try {
-//                utx.rollback();
-//            } catch (Exception re) {
-//                throw new RollbackFailureException("An error occurred attempting to roll back the transaction.", re);
-//            }
-//            throw ex;
-//        } finally {
-//            if (em != null) {
-//                em.close();
-//            }
-//        }
     }
 
     public void edit(Alternative alternative) throws IllegalOrphanException, NonexistentEntityException, RollbackFailureException, Exception {
-//        EntityManager em = null;
-//        try {
-//            utx.begin();
-//            em = getEntityManager();
         Alternative persistentAlternative = em.find(Alternative.class, alternative.getId());
         Poll pollOld = persistentAlternative.getPoll();
         Poll pollNew = alternative.getPoll();
@@ -164,33 +153,9 @@ public class AlternativeController implements Serializable {
                 }
             }
         }
-//            utx.commit();
-//        } catch (Exception ex) {
-//            try {
-//                utx.rollback();
-//            } catch (Exception re) {
-//                throw new RollbackFailureException("An error occurred attempting to roll back the transaction.", re);
-//            }
-//            String msg = ex.getLocalizedMessage();
-//            if (msg == null || msg.length() == 0) {
-//                Long id = alternative.getId();
-//                if (findAlternative(id) == null) {
-//                    throw new NonexistentEntityException("The alternative with id " + id + " no longer exists.");
-//                }
-//            }
-//            throw ex;
-//        } finally {
-//            if (em != null) {
-//                em.close();
-//            }
-//        }
     }
 
     public void destroy(Long id) throws IllegalOrphanException, NonexistentEntityException, RollbackFailureException, Exception {
-//        EntityManager em = null;
-//        try {
-//            utx.begin();
-//            em = getEntityManager();
         Alternative alternative;
         try {
             alternative = em.getReference(Alternative.class, id);
@@ -215,19 +180,6 @@ public class AlternativeController implements Serializable {
             poll = em.merge(poll);
         }
         em.remove(alternative);
-//            utx.commit();
-//        } catch (Exception ex) {
-//            try {
-//                utx.rollback();
-//            } catch (Exception re) {
-//                throw new RollbackFailureException("An error occurred attempting to roll back the transaction.", re);
-//            }
-//            throw ex;
-//        } finally {
-//            if (em != null) {
-//                em.close();
-//            }
-//        }
     }
 
     public List<Alternative> findAlternativeEntitiesByPollId(Long pollId) {
@@ -258,25 +210,15 @@ public class AlternativeController implements Serializable {
     }
 
     public Alternative findAlternative(Long id) {
-//        EntityManager em = getEntityManager();
-//        try {
         return em.find(Alternative.class, id);
-//        } finally {
-//            em.close();
-//        }
     }
 
     public int getAlternativeCount() {
-//        EntityManager em = getEntityManager();
-//        try {
         CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
         Root<Alternative> rt = cq.from(Alternative.class);
         cq.select(em.getCriteriaBuilder().count(rt));
         Query q = em.createQuery(cq);
         return ((Long) q.getSingleResult()).intValue();
-//        } finally {
-//            em.close();
-//        }
     }
 
 }
