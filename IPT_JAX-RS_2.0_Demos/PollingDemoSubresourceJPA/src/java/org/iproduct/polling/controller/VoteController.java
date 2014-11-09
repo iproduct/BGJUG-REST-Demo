@@ -58,6 +58,7 @@ public class VoteController implements Serializable {
     }
 
     public void create(Vote vote) throws RollbackFailureException, Exception {
+        vote.setId(null);
         Alternative alternative = vote.getAlternative();
         if (alternative != null) {
             alternative = em.getReference(alternative.getClass(), alternative.getId());

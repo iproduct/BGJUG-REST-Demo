@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import javax.ws.rs.core.UriInfo;
+import org.iproduct.polling.controller.AlternativeController;
 
 import org.iproduct.polling.entity.Poll;
 import org.iproduct.polling.controller.PollController;
@@ -52,6 +53,10 @@ public class PollsResource {
 
     @Inject 
     private PollController pollController;
+    
+    @Inject 
+    private AlternativeController alternativeController;
+    
     
     // injected UserTransaction
 //    @Resource
@@ -127,13 +132,13 @@ public class PollsResource {
      * @return Poll JAXB XML/JSON representation
      */
     @Path("/{id}/alternatives")
-    public Class<AlternativesResource> getPollAlternativesByPollId(@PathParam("id") Long id) {
+    public AlternativesResource getPollAlternativesByPollId(@PathParam("id") Long id) {
         Poll poll = pollController.findPoll(id);
         if (poll == null) {
             throw new WebApplicationException("Poll with Id = " 
                     + id + " does not exist", NOT_FOUND);
         }
-        return AlternativesResource.class;
+        return new AlternativesResource(poll.getId(), pollController, alternativeController, uriInfo);
     }
 
     

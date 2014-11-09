@@ -16,8 +16,13 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 @Entity
+@XmlRootElement
+@XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.FIELD)
 public class Vote implements Serializable {
 
     @Column(name = "vote_time", unique = false, updatable = true, insertable = true, nullable = false, length = 255, scale = 0, precision = 0)
@@ -45,6 +50,7 @@ public class Vote implements Serializable {
     @Column(unique = false, updatable = false, insertable = false, nullable = false, length = 255)
     private String email;
 
+    @XmlTransient
     @NotNull
     @ManyToOne(optional = false, targetEntity = Alternative.class)
     private Alternative alternative;

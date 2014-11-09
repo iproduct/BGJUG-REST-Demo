@@ -42,7 +42,7 @@ public class WebApplicationExceptionMapper implements
         ExceptionMapper<WebApplicationException> {
   @Override
   public Response toResponse(WebApplicationException ex) {
-    return Response.status(404).
+    return Response.status(ex.getResponse().getStatus()).
       entity(ex.getMessage()).
       type("text/plain").
       build();

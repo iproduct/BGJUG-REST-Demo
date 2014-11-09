@@ -46,7 +46,7 @@ import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
  *
  */
 @Path("/")
-public class AlternativesResource {
+public class VotesResource {
     private Long pollId;
     private UriInfo uriInfo;
     private PollController pollController;
@@ -55,7 +55,7 @@ public class AlternativesResource {
     /**
      * Public no argument constructor 
      */
-    public AlternativesResource() {}
+    public VotesResource() {}
 
     /**
      * Public constructor with parent Poll resource identifier as argument
@@ -63,7 +63,7 @@ public class AlternativesResource {
      * @param pollController the parent {@link org.iproduct.polling.controller.PollController}
      * @param uriInfo the UriInfo instance from parent resource
      */
-    AlternativesResource(Long pollId, PollController pollController, 
+    VotesResource(Long pollId, PollController pollController, 
             AlternativeController alternativeController, UriInfo uriInfo) {
         this.pollId = pollId;
         this.pollController = pollController;
@@ -159,14 +159,13 @@ public class AlternativesResource {
         } catch (NonexistentEntityException ex) {
             throw new WebApplicationException(ex.getMessage(), NOT_FOUND);
         } catch (Exception e){
-            Logger.getLogger(AlternativesResource.class.getName())
+            Logger.getLogger(VotesResource.class.getName())
                 .log(Level.SEVERE, "Alternative Resource throws exception:", e);
             throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
         }
-        Response response = Response.created(
-            uriInfo.getAbsolutePathBuilder()
+        Response response = Response.created(uriInfo.getAbsolutePathBuilder()
                 .path(Long.toString(pollId))
-                .path(AlternativesResource.class)
+                .path(VotesResource.class)
                 .path(Long.toString(alt.getId())).build() )
             .entity(alt)
             .build();
@@ -222,7 +221,7 @@ public class AlternativesResource {
             } catch(IllegalOrphanException | RollbackFailureException e){
                 throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
             } catch (Exception e){
-                Logger.getLogger(AlternativesResource.class.getName())
+                Logger.getLogger(VotesResource.class.getName())
                     .log(Level.SEVERE, "Alternative Resource throws exception:", e);
                 throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
             }
@@ -270,7 +269,7 @@ public class AlternativesResource {
         } catch(IllegalOrphanException | RollbackFailureException e){
             throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
         } catch (Exception e){
-            Logger.getLogger(AlternativesResource.class.getName())
+            Logger.getLogger(VotesResource.class.getName())
                 .log(Level.SEVERE, "Alternative Resource throws exception:", e);
             throw new WebApplicationException(e.getMessage(), BAD_REQUEST);
         }
@@ -286,7 +285,7 @@ public class AlternativesResource {
         }
         
         if(!(ex instanceof ConstraintViolationException)){
-            Logger.getLogger(AlternativesResource.class.getName())
+            Logger.getLogger(VotesResource.class.getName())
                     .log(Level.SEVERE, "Alternative Resource throws exception:", e);
             throw new WebApplicationException(ex.getMessage(), BAD_REQUEST);
         }

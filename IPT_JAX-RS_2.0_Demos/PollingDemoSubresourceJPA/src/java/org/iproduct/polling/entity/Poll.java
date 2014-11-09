@@ -20,10 +20,12 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@javax.xml.bind.annotation.XmlRootElement
-@javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.FIELD)
+@XmlRootElement
+@XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.FIELD)
 public class Poll implements Serializable {
 
     @TableGenerator(name = "poll_gen",

@@ -18,8 +18,12 @@ import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
+@XmlRootElement
+@XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.FIELD)
 public class Alternative implements Serializable {
 
     @TableGenerator(name = "alt_gen",
@@ -124,7 +128,9 @@ public class Alternative implements Serializable {
     @Override
     public String toString() {
         return "Alternative{" + "id=" + id + ", text=" + text + ", position=" 
-                + position + ", poll=" + poll + ", votes=" + votes + '}';
+                + position 
+                + (poll != null ? ", pollId=" + poll.getId() : "")
+                + ", votes=" + votes + '}';
     }
 
 }

@@ -35,13 +35,14 @@ import org.iproduct.polling.entity.Poll;
 import org.iproduct.polling.entity.Vote;
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.ParameterExpression;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import org.iproduct.polling.entity.Alternative;
 import org.iproduct.polling.entity.Alternative_;
 import org.iproduct.polling.entity.Poll_;
@@ -58,31 +59,25 @@ import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
 public class AlternativeController implements Serializable {
 
     // injected EntityManager property
-    @Inject 
-    PollController pc;
-//    @PersistenceContext(unitName = "PollingPU")
+    @PersistenceContext(unitName = "PollingPU")
     private EntityManager em;
-    
-    @PostConstruct
-    public void init(){
-        em = pc.getEntityManager();
-    }
 
     public AlternativeController() {
     }
 
-    public void create(Long pollId, Alternative alternative) 
-            throws NonexistentEntityException,RollbackFailureException, Exception {
+    public void create(Long pollId, Alternative alternative)
+            throws NonexistentEntityException, RollbackFailureException, Exception {
+        alternative.setId(null);
         if (alternative.getVotes() == null) {
             alternative.setVotes(new ArrayList<Vote>());
         }
-        
+
         Poll poll = em.find(Poll.class, pollId);
         if (poll == null) {
-            throw new NonexistentEntityException("Poll with Id = " 
+            throw new NonexistentEntityException("Poll with Id = "
                     + pollId + " does not exist");
         }
-        
+
         alternative.setPoll(poll);
         List<Vote> attachedVotes = new ArrayList<Vote>();
         for (Vote votesVoteToAttach : alternative.getVotes()) {
@@ -104,7 +99,16 @@ public class AlternativeController implements Serializable {
         }
     }
 
-    public void edit(Alternative alternative) throws IllegalOrphanException, NonexistentEntityException, RollbackFailureException, Exception {
+    public void edit(Long pollId, Alternative alternative) throws IllegalOrphanException, NonexistentEntityException, RollbackFailureException, Exception {
+        if (alternative.getVotes() == null) {
+            alternative.setVotes(new ArrayList<Vote>());
+        }
+        Poll poll = em.find(Poll.class, pollId);
+        if (poll == null) {
+            throw new NonexistentEntityException("Poll with Id = "
+                    + pollId + " does not exist");
+        }
+        alternative.setPoll(poll);
         Alternative persistentAlternative = em.find(Alternative.class, alternative.getId());
         Poll pollOld = persistentAlternative.getPoll();
         Poll pollNew = alternative.getPoll();
@@ -206,6 +210,7 @@ public class AlternativeController implements Serializable {
             query.setFirstResult(firstResult);
         }
         List<Alternative> results = query.getResultList();
+        System.out.println(">>>>>>>>>>>>>>>>>>>> Alternatives: " + results);
         return results;
     }
 
