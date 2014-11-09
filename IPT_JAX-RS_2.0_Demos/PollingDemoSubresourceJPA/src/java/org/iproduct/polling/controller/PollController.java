@@ -192,17 +192,17 @@ public class PollController implements Serializable {
             if(poll == null) 
                 throw new NonexistentEntityException("The poll with id " 
                         + id + " does not exist.");
-            List<String> illegalOrphanMessages = null;
-            List<Alternative> alternativesOrphanCheck = poll.getAlternatives();
-            for (Alternative alternativesOrphanCheckAlternative : alternativesOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Poll (" + poll + ") cannot be destroyed since the Alternative " + alternativesOrphanCheckAlternative + " in its alternatives field has a non-nullable poll field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
+//            List<String> illegalOrphanMessages = null;
+//            List<Alternative> alternativesOrphanCheck = poll.getAlternatives();
+//            for (Alternative alternativesOrphanCheckAlternative : alternativesOrphanCheck) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Poll (" + poll + ") cannot be destroyed since the Alternative " + alternativesOrphanCheckAlternative + " in its alternatives field has a non-nullable poll field.");
+//            }
+//            if (illegalOrphanMessages != null) {
+//                throw new IllegalOrphanException(illegalOrphanMessages);
+//            }
             em.remove(poll);
 //            utx.commit();
 //        } catch (Exception ex) {

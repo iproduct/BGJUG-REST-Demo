@@ -168,17 +168,17 @@ public class AlternativeController implements Serializable {
         } catch (EntityNotFoundException enfe) {
             throw new NonexistentEntityException("The alternative with id " + id + " no longer exists.", enfe);
         }
-        List<String> illegalOrphanMessages = null;
-        List<Vote> votesOrphanCheck = alternative.getVotes();
-        for (Vote votesOrphanCheckVote : votesOrphanCheck) {
-            if (illegalOrphanMessages == null) {
-                illegalOrphanMessages = new ArrayList<String>();
-            }
-            illegalOrphanMessages.add("This Alternative (" + alternative + ") cannot be destroyed since the Vote " + votesOrphanCheckVote + " in its votes field has a non-nullable alternative field.");
-        }
-        if (illegalOrphanMessages != null) {
-            throw new IllegalOrphanException(illegalOrphanMessages);
-        }
+//        List<String> illegalOrphanMessages = null;
+//        List<Vote> votesOrphanCheck = alternative.getVotes();
+//        for (Vote votesOrphanCheckVote : votesOrphanCheck) {
+//            if (illegalOrphanMessages == null) {
+//                illegalOrphanMessages = new ArrayList<String>();
+//            }
+//            illegalOrphanMessages.add("This Alternative (" + alternative + ") cannot be destroyed since the Vote " + votesOrphanCheckVote + " in its votes field has a non-nullable alternative field.");
+//        }
+//        if (illegalOrphanMessages != null) {
+//            throw new IllegalOrphanException(illegalOrphanMessages);
+//        }
         Poll poll = alternative.getPoll();
         if (poll != null) {
             poll.getAlternatives().remove(alternative);
