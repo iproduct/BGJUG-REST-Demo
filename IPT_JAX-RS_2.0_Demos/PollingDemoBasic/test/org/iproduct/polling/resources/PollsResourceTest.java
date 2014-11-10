@@ -40,11 +40,12 @@ import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import static org.hamcrest.CoreMatchers.containsString;
 
 import org.iproduct.polling.model.Poll;
 import org.junit.After;
 import org.junit.Test;
-import static org.junit.matchers.JUnitMatchers.containsString;
+
 
 /**
  * Functional tests for {@link org.iproduct.polling.resources.PollsResource PollsResource} resources
