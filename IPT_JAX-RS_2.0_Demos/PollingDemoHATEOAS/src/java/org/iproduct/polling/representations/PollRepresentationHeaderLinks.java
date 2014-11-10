@@ -50,7 +50,7 @@ import org.iproduct.polling.entity.PollStatus;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name="poll")
-public class PolllRepresentation {
+public class PollRepresentationHeaderLinks {
     private Long id;
     private PollStatus status = PollStatus.CREATED;
     private String title;
@@ -60,16 +60,11 @@ public class PolllRepresentation {
     @XmlElementWrapper(name = "_embedded")
     @XmlElement(name = "alternative")
     private List<Alternative> alternatives;
-    @XmlElementWrapper(name = "_links")
-    @XmlElement(name = "link")
-    @XmlJavaTypeAdapter(JaxbAdapter.class)
-    private Collection<Link> links;
 
-    public PolllRepresentation() {
-        links = new ArrayList<Link>();
+    public PollRepresentationHeaderLinks() {
     }
 
-    public PolllRepresentation(Poll poll, Collection<Link> links) {
+    public PollRepresentationHeaderLinks(Poll poll) {
         id = poll.getId();
         status = poll.getStatus();
         title = poll.getTitle();
@@ -78,7 +73,6 @@ public class PolllRepresentation {
         end = poll.getEnd();
         alternatives = (poll.getAlternatives().size() > 0)?
                 poll.getAlternatives() : null;
-        this.links = links != null ? links : new ArrayList<Link>();
     } 
 
     public Long getId() {
@@ -137,14 +131,6 @@ public class PolllRepresentation {
         this.alternatives = alternatives;
     }
 
-    public Collection<Link> getLinks() {
-        return links;
-    }
-
-    public void setLinks(Collection<Link> links) {
-        this.links = links;
-    }
-
     @Override
     public int hashCode() {
         int hash = 5;
@@ -160,7 +146,7 @@ public class PolllRepresentation {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final PolllRepresentation other = (PolllRepresentation) obj;
+        final PollRepresentationHeaderLinks other = (PollRepresentationHeaderLinks) obj;
         if (!Objects.equals(this.id, other.id)) {
             return false;
         }
@@ -169,7 +155,9 @@ public class PolllRepresentation {
 
     @Override
     public String toString() {
-        return "PolllRepresentation{" + "id=" + id + ", status=" + status + ", title=" + title + ", question=" + question + ", start=" + start + ", end=" + end + ", alternatives=" + alternatives + ", links=" + links + '}';
+        return "PolllRepresentation{" + "id=" + id + ", status=" + status 
+                + ", title=" + title + ", question=" + question + ", start=" 
+                + start + ", end=" + end + ", alternatives=" + alternatives + '}';
     }
 
     

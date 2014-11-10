@@ -80,7 +80,7 @@ public class Vote implements Serializable {
             nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     @Basic
-    private Date voteTime;
+    private Date voteTime = new Date();
 
     @XmlTransient
     @NotNull

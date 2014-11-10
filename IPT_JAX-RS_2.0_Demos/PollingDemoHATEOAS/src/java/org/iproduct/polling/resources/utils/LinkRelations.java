@@ -159,4 +159,9 @@ public interface LinkRelations {
      */
     String LRDD = "lrdd";
 
+    /**
+     * Custom vote for alternative in a poll relationship
+     */
+    String VOTE = "http://iproduct.org/vote";
+
 }

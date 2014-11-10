@@ -35,6 +35,7 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -87,7 +88,8 @@ public class Alternative implements Serializable {
     @NotNull
     private Poll poll;
 
-    @OneToMany(cascade = {CascadeType.ALL}, targetEntity = Vote.class, mappedBy = "alternative")
+    @OneToMany(cascade = {CascadeType.ALL}, targetEntity = Vote.class, mappedBy = "alternative",
+        fetch = EAGER )
     private List<Vote> votes;
 
     public Alternative() {

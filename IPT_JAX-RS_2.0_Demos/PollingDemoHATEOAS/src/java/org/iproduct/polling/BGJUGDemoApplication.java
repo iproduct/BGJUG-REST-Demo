@@ -26,8 +26,7 @@
 package org.iproduct.polling;
 
 import javax.ws.rs.ApplicationPath;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
+//import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 /**
@@ -41,7 +40,9 @@ public class BGJUGDemoApplication extends ResourceConfig {
 
     public BGJUGDemoApplication() {
         register(new CustomBinder());
+//        register(JacksonFeature.class);
         packages(true, "org.iproduct.polling");
+         
 //        ServiceLocator locator = ServiceLocatorUtilities.createAndPopulateServiceLocator();
     }
 }

@@ -36,6 +36,7 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -52,6 +53,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import javax.ws.rs.core.UriBuilder;
@@ -64,7 +66,9 @@ import org.iproduct.polling.controller.VoteController;
 import org.iproduct.polling.jpacontroller.exceptions.IllegalOrphanException;
 import org.iproduct.polling.jpacontroller.exceptions.NonexistentEntityException;
 import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
-import org.iproduct.polling.representations.PolllRepresentation;
+import org.iproduct.polling.representations.PollRepresentationCustomLinks;
+import org.iproduct.polling.representations.PollRepresentationDocumentLinks;
+import org.iproduct.polling.representations.PollRepresentationHeaderLinks;
 import static org.iproduct.polling.resources.utils.LinkRelations.COLLECTION;
 import static org.iproduct.polling.resources.utils.LinkRelations.NEXT;
 import static org.iproduct.polling.resources.utils.LinkRelations.PREV;
@@ -146,7 +150,7 @@ public class PollsResource {
     @GET
     @Path("/{id}")
     @Produces({APPLICATION_XML, APPLICATION_JSON})
-    public PolllRepresentation getPollById(@PathParam("id") Long id) {
+    public Response getPollById(@PathParam("id") Long id) {
         Poll poll = pollController.findPoll(id);
         if (poll == null) {
             throw new WebApplicationException("Poll with Id = " 
@@ -155,35 +159,58 @@ public class PollsResource {
         List<Poll> polls = pollController.findPollEntities();
         int i = polls.indexOf(poll);
  
-        Link prevLink = (i > 0) ? Link.fromUriBuilder(
-                UriBuilder.fromResource(PollsResource.class)
-                    .path(polls.get(i - 1).getId().toString()))
-                .rel(PREV).type(APPLICATION_XML).type(APPLICATION_JSON)
+        Link prevLink = (i > 0) ?  Link.fromUriBuilder(
+                uriInfo.getBaseUriBuilder().path(PollsResource.class)
+                    .path(polls.get(i - 1).getId().toString()) )
+                .rel(PREV)
+                .type(APPLICATION_XML)
+                .type(APPLICATION_JSON)
                 .title("Previous poll").build() : null;
 
         Link nextLink = (i < polls.size() - 1) ? Link.fromUriBuilder(
-                UriBuilder.fromResource(PollsResource.class)
-                    .path(polls.get(i + 1).getId().toString()))
-                .rel(NEXT).type(APPLICATION_XML).type(APPLICATION_JSON)
+                uriInfo.getBaseUriBuilder().path(PollsResource.class)
+                    .path(polls.get(i + 1).getId().toString()) )
+                .rel(NEXT)
+                .type(APPLICATION_XML)
+                .type(APPLICATION_JSON)
                 .title("Next poll").build() : null;
                 
-        Link collectionLink = Link.fromResource(PollsResource.class)
-                .rel(COLLECTION).type(APPLICATION_XML).type(APPLICATION_JSON)
+        Link collectionLink = Link.fromUriBuilder(
+                    uriInfo.getBaseUriBuilder().path(PollsResource.class) ) 
+                .rel(COLLECTION)
+                .type(APPLICATION_XML)
+                .type(APPLICATION_JSON)
                 .title("Polls collection").build();
                 
         Link upLink = Link.fromLink(collectionLink)
-                .rel(UP).type(APPLICATION_XML).type(APPLICATION_JSON)
+                .rel(UP)
+                .type(APPLICATION_XML)
+                .type(APPLICATION_JSON)
                 .title("Root resource").build();
 
-        Link selfLink = Link.fromLink(collectionLink)
+        Link selfLink = Link.fromUriBuilder(uriInfo.getAbsolutePathBuilder()) 
                 .rel(SELF).type(APPLICATION_XML).type(APPLICATION_JSON)
                 .title("Self link").build();
                 
         List<Link> links = Arrays.asList(prevLink, nextLink, collectionLink, 
-                upLink, selfLink);
-        
-        return new PolllRepresentation(poll, links);
+                upLink, selfLink).stream()
+                .filter(a -> a != null)
+                .collect(Collectors.toList());
+        System.out.println(">>>>>>>>>>LINKS:" + links);
+     
+        ResponseBuilder resp;
+     // 1. Structural Links in entity body - at the moment works in XML only
+//        resp = Response.ok(new PollRepresentationDocumentLinks(poll, links));
 
+     // 2. State transition links as HTTP Link headers - work independently
+     // of the MIME type of the resource
+//        resp = Response.ok(new PollRepresentationHeaderLinks(poll))
+//                .links(links.toArray(new Link[]{}));
+
+     // 3. Custom Link serialization (JAXB mapping) - allows maximum flexibility
+        resp = Response.ok(new PollRepresentationCustomLinks(poll, links));
+        
+        return resp.build();
     }
 
     /**

@@ -26,14 +26,15 @@
  */
 package org.iproduct.polling.resources;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_XML;
+import java.util.Arrays;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.ejb.EJBException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -48,6 +49,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Link;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_XML;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.CONFLICT;
@@ -58,10 +62,15 @@ import org.iproduct.polling.controller.PollController;
 import org.iproduct.polling.controller.VoteController;
 
 import org.iproduct.polling.entity.Alternative;
-import org.iproduct.polling.entity.Poll;
 import org.iproduct.polling.jpacontroller.exceptions.IllegalOrphanException;
 import org.iproduct.polling.jpacontroller.exceptions.NonexistentEntityException;
 import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
+import org.iproduct.polling.representations.AlternativeRepresentation;
+import static org.iproduct.polling.resources.utils.LinkRelations.COLLECTION;
+import static org.iproduct.polling.resources.utils.LinkRelations.NEXT;
+import static org.iproduct.polling.resources.utils.LinkRelations.PREV;
+import static org.iproduct.polling.resources.utils.LinkRelations.SELF;
+import static org.iproduct.polling.resources.utils.LinkRelations.UP;
 
 /**
  * Resource class for {@link org.iproduct.polling.model.Alternative Alternative} resources
@@ -151,14 +160,74 @@ public class AlternativesResource {
     @GET
     @Path("/{id}")
     @Produces({APPLICATION_XML, APPLICATION_JSON})
-    public Alternative getAlternativeById(@PathParam("id") Long id) {
-        Alternative poll = alternativeController.findAlternative(id);
-        if (poll == null) {
+    public Response getAlternativeById(@PathParam("id") Long id) {
+        Alternative alt = alternativeController.findAlternative(id);
+        if (alt == null) {
             throw new WebApplicationException("Alternative with Id = " 
                     + id + " does not exist", NOT_FOUND);
         }
-//			throw new NotFoundException("Entity with resourceId = " + id + " does not exist");
-        return poll;
+        List<Alternative> alternatives = alternativeController.findAlternativeEntitiesByPollId(pollId);
+        int i = alternatives.indexOf(alt);
+ 
+        Link prevLink = (i > 0) ?  Link.fromUriBuilder(
+                uriInfo.getBaseUriBuilder().path(PollsResource.class)
+                    .path(Long.toString(pollId)).path("alternatives")
+                    .path(alternatives.get(i - 1).getId().toString()) )
+                .rel(PREV)
+                .type(APPLICATION_XML)
+                .type(APPLICATION_JSON)
+                .title("Previous poll").build() : null;
+
+        Link nextLink = (i < alternatives.size() - 1) ? Link.fromUriBuilder(
+                uriInfo.getBaseUriBuilder().path(PollsResource.class)
+                    .path(Long.toString(pollId)).path("alternatives")
+                    .path(alternatives.get(i + 1).getId().toString()) )
+                .rel(NEXT)
+                .type(APPLICATION_XML)
+                .type(APPLICATION_JSON)
+                .title("Next poll").build() : null;
+                
+        Link collectionLink = Link.fromUriBuilder(
+                    uriInfo.getBaseUriBuilder().path(PollsResource.class)
+                        .path(Long.toString(pollId)).path("alternatives") )
+                .rel(COLLECTION)
+                .type(APPLICATION_XML)
+                .type(APPLICATION_JSON)
+                .title("Polls collection").build();
+                
+        Link upLink =  Link.fromUriBuilder(
+                    uriInfo.getBaseUriBuilder().path(PollsResource.class))
+                .rel(UP)
+                .type(APPLICATION_XML)
+                .type(APPLICATION_JSON)
+                .title("Root resource").build();
+
+        Link selfLink =   Link.fromUriBuilder(
+            uriInfo.getBaseUriBuilder().path(PollsResource.class)
+                .path(Long.toString(pollId)).path("alternatives")
+                .path(Long.toString(alt.getId())) )
+                .rel(SELF).type(APPLICATION_XML).type(APPLICATION_JSON)
+                .title("Self link").build();
+                
+        List<Link> links = Arrays.asList(prevLink, nextLink, collectionLink, 
+                upLink, selfLink).stream()
+                .filter(a -> a != null)
+                .collect(Collectors.toList());
+        System.out.println(">>>>>>>>>>LINKS:" + links);
+     
+        Response.ResponseBuilder resp;
+     // 1. Structural Links in entity body - at the moment works in XML only
+//        resp = Response.ok(new PollRepresentationDocumentLinks(poll, links));
+
+     // 2. State transition links as HTTP Link headers - work independently
+     // of the MIME type of the resource
+//        resp = Response.ok(new PollRepresentationHeaderLinks(poll))
+//                .links(links.toArray(new Link[]{}));
+
+     // 3. Custom Link serialization (JAXB mapping) - allows maximum flexibility
+        resp = Response.ok(new AlternativeRepresentation(alt, links));
+        
+        return resp.build();
     }
     /**
      * Receive return list of alternatives for particular resource with given 

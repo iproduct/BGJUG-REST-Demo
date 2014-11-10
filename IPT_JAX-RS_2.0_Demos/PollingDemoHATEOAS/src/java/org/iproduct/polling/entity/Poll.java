@@ -38,6 +38,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import static javax.persistence.FetchType.EAGER;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -98,7 +99,8 @@ public class Poll implements Serializable {
     @NotNull
     private Date end;
 
-    @OneToMany(cascade = {CascadeType.ALL}, targetEntity = Alternative.class, mappedBy = "poll")
+    @OneToMany(cascade = {CascadeType.ALL}, targetEntity = Alternative.class, mappedBy = "poll",
+        fetch = EAGER )
     private List<Alternative> alternatives;
 
     /**
