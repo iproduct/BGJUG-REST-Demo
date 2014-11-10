@@ -21,7 +21,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -150,21 +149,8 @@ public class PollsResource {
 	@Path("/{id}")
 	@Consumes({APPLICATION_XML, APPLICATION_JSON})
 	public Response updatePoll(@PathParam("id") Long id, Poll poll){
-            Response response;
-            if(id.equals(poll.getId())){
-                    try{
-                            poll = pollRepository.updateItem(poll, null);
-                            response = Response.noContent().build(); //More appropriate than 200OK
-                    } catch (ConcurrentModificationException e){
-                            response = Response.status(Response.Status.CONFLICT).type(TEXT_PLAIN).entity(e.getMessage()).build();
-                    } catch (EntityDoesNotExistException e){
-                            response = Response.status(Response.Status.NOT_FOUND).type(TEXT_PLAIN).entity(e.getMessage()).build();
-                    }
-            } else {
-                    response = Response.status(Response.Status.BAD_REQUEST).type(TEXT_PLAIN).entity("Resource identifier " + id 
-                                    + " can not be changed to " + poll.getId() +". Resource identifiers are immutable.").build();
-            }
-            return response;
+            //TODO Implement the method as exercise
+            return null;
 	}
 	
 	/**
