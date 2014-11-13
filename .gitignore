@@ -1,3 +1,4 @@
+/build/
 *.~ml
 /IPT_JAX-RS_2.0_Demos/HelloREST/nbproject/private/
 /IPT_JAX-RS_2.0_Demos/RestfulHello/nbproject/private/
@@ -7,3 +8,14 @@
 /IPT_JAX-RS_2.0_Demos/RestfulHello_Exercise/nbproject/private/
 /IPT_JAX-RS_2.0_Demos/PollingDemoBasic_Exercise/nbproject/private/
 /IPT_JAX-RS_2.0_Demos/PollingDemoSubresourceJPA_Exercise/nbproject/private/
+/IPT_JAX-RS_2.0_Demos/RestfulHello/dist/
+/IPT_JAX-RS_2.0_Demos/PollingDemoSubresourceJPA/dist/
+/IPT_JAX-RS_2.0_Demos/PollingDemoSubresourceJPA_Old/nbproject/private/
+/IPT_JAX-RS_2.0_Demos/PollingDemoBasicMaven/target/
+/IPT_JAX-RS_2.0_Demos/RestfulHelloMaven/target/
+/IPT_JAX-RS_2.0_Demos/IPTRestfulHello/target/
+/IPT_JAX-RS_2.0_Demos/IPTPollingDemoBasic/target/
+/IPT_JAX-RS_2.0_Demos/IPTPollin/IPTRestfulHelloWeb/target/
+/IPT_JAX-RS_2.0_Demos/IPTTestMavenproject1/target/
+/IPT_JAX-RS_2.0_Demos/PollingDemo_JAXRS20_HATEOAS/nbproject/private/
+/IPT_JAX-RS_2.0_Demos/PollingDemo_JAXRS20_HATEOAS/build/

@@ -60,7 +60,7 @@ public class VoteController implements Serializable {
     // injected EntityManager property
     @PersistenceContext(unitName = "PollingPU")
     private EntityManager em;
-
+ 
     public VoteController() {
     }
 

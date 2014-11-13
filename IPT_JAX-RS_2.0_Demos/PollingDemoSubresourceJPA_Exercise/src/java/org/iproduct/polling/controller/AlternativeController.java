@@ -33,7 +33,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.iproduct.polling.entity.Poll;
 import org.iproduct.polling.entity.Vote;
-import java.util.ArrayList;
+import java.util.ArrayList; 
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;

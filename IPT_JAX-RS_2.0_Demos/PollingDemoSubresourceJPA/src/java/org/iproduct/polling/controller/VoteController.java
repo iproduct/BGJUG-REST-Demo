@@ -22,7 +22,7 @@
  * If applicable, add the following below the License Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyright [year] [name of copyright owner]"
- *
+ * 
  */
 package org.iproduct.polling.controller;
 
@@ -30,7 +30,6 @@ import java.io.Serializable;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
@@ -39,10 +38,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
-import javax.transaction.UserTransaction;
 import org.iproduct.polling.entity.Alternative;
 import org.iproduct.polling.entity.Alternative_;
-import org.iproduct.polling.entity.Poll;
 import org.iproduct.polling.entity.Poll_;
 import org.iproduct.polling.entity.Vote;
 import org.iproduct.polling.entity.Vote_;
@@ -50,7 +47,7 @@ import org.iproduct.polling.jpacontroller.exceptions.NonexistentEntityException;
 import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
 
 /**
- *
+ * 
  *
  * @author Trayan Iliev, IPT [http://iproduct.org]
  */

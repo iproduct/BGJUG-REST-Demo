@@ -70,7 +70,7 @@ import org.iproduct.polling.jpacontroller.exceptions.RollbackFailureException;
  * @author IPT [http://iproduct.org]
  *
  */
-@Path("/")
+@Path("/alternatives")
 public class AlternativesResource {
     private Long pollId;
     private UriInfo uriInfo;
